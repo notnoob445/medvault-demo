@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MedVault Console · BCSE355L · 24BDS0064</title>
+<style>
+  :root {
+    --bg: #070b10; --panel: #0e1620; --ink: #e7eef6; --muted: #8b9cb0;
+    --line: #223044; --ok: #3ee0a0; --bad: #ff5d73; --warn: #ffc857; --blue: #4ea1ff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(1200px 600px at 10% -10%, #122036 0%, var(--bg) 45%); color: var(--ink); font-family: Segoe UI, Arial, sans-serif; }
+  header { display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--line); background: rgba(7,11,16,.9); position: sticky; top: 0; z-index: 5; }
+  .brand { font-size: 18px; font-weight: 700; }
+  .brand span { color: var(--blue); }
+  .meta { color: var(--muted); font-size: 12px; }
+  .live { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ok); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+  .wrap { display: grid; grid-template-columns: 300px 1fr 300px; min-height: calc(100vh - 58px); }
+  aside, .rail { padding: 14px; }
+  aside { border-right: 1px solid var(--line); }
+  .rail { border-left: 1px solid var(--line); }
+  h3 { margin: 0 0 10px; font-size: 11px; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
+  label { display: block; font-size: 11px; color: var(--muted); margin: 10px 0 5px; }
+  input, textarea, select, button { width: 100%; font: inherit; color: var(--ink); background: #0b121a; border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; }
+  textarea { min-height: 72px; resize: vertical; }
+  button { cursor: pointer; font-weight: 650; margin-top: 8px; }
+  .b-pri { background: linear-gradient(180deg, #1c4f93, #163e75); border-color: #2b66b8; }
+  .b-ok { background: #123528; border-color: #1e6b4d; color: var(--ok); }
+  .b-bad { background: #3a1520; border-color: #7a2438; color: #ff9aa8; }
+  .b-dim { background: #121a24; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .hint { font-size: 12px; color: var(--muted); line-height: 1.45; margin-top: 12px; }
+  main { padding: 14px 16px 24px; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  .kpi b { display: block; font-size: 20px; margin-top: 4px; }
+  .kpi em { font-style: normal; color: var(--muted); font-size: 11px; }
+  .phases { display: flex; gap: 6px; margin: 0 0 12px; flex-wrap: wrap; }
+  .ph { flex: 1; min-width: 110px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px; font-size: 11px; color: var(--muted); }
+  .ph.on { border-color: #3d6eaf; color: var(--ink); }
+  .ph b { display: block; color: var(--blue); font-size: 12px; margin-bottom: 3px; }
+  .grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 10px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  .card h4 { margin: 0 0 8px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  pre { margin: 0; white-space: pre-wrap; word-break: break-all; font-size: 11.5px; line-height: 1.45; color: #d5e3f0; max-height: 210px; overflow: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { text-align: left; padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); }
+  .ok { color: var(--ok); } .bad { color: var(--bad); } .warn { color: var(--warn); }
+  .bar { height: 8px; background: #1a2430; border-radius: 99px; overflow: hidden; margin-top: 6px; }
+  .bar > i { display: block; height: 100%; width: 34%; background: linear-gradient(90deg, #3ee0a0, #ffc857 70%, #ff5d73); }
+  .svc { display: flex; justify-content: space-between; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+  .tag { font-size: 10px; padding: 2px 7px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
+  .toast { position: fixed; right: 18px; bottom: 18px; background: #102033; border: 1px solid #2d5a93; padding: 10px 12px; border-radius: 10px; font-size: 13px; display: none; max-width: 280px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="brand">MedVault <span>Console</span></div>
+    <div class="meta">BCSE355L · Akshat · 24BDS0064 · ap-south-1 · Well-Architected demo</div>
+  </div>
+  <div class="live"><i class="dot"></i> systems live · KMS CMK active · Shield Standard on</div>
+</header>
+<div class="wrap">
+<aside>
+  <h3>Operator panel</h3>
+  <label>IAM role</label>
+  <select id="role">
+    <option value="clinician-readwrite">clinician-readwrite · allowed</option>
+    <option value="random-intern">random-intern · denied</option>
+    <option value="auditor-readonly">auditor-readonly · trail only</option>
+  </select>
+  <label>Patient ID</label>
+  <input id="patient" value="p-24BDS0064" />
+  <label>Clinical note</label>
+  <textarea id="body">BP 120/80. No penicillin. Follow-up in 14 days.</textarea>
+  <button class="b-pri" id="btnWrite">Write encrypted record</button>
+  <div class="row2">
+    <button class="b-ok" id="btnRead">Authorized read</button>
+    <button class="b-bad" id="btnDeny">Intern read</button>
+  </div>
+  <div class="row2">
+    <button class="b-dim" id="btnWaf">Simulate SQLi to WAF</button>
+    <button class="b-dim" id="btnFail">Failover Multi-AZ</button>
+  </div>
+  <button class="b-dim" id="btnBudget">Push month spend +8%</button>
+  <button class="b-dim" id="btnReset">Reset lab</button>
+  <p class="hint">Demo order: Write, show Aurora has no plaintext, Authorized read, Intern fails, WAF blocks SQLi, Failover stays green.</p>
+</aside>
+<main>
+  <div class="kpis">
+    <div class="kpi"><em>Writes</em><b id="kWrite">0</b></div>
+    <div class="kpi"><em>KMS decrypts</em><b id="kDec">0</b></div>
+    <div class="kpi"><em>WAF blocks</em><b id="kWaf">0</b></div>
+    <div class="kpi"><em>Replica lag</em><b id="kLag">12 ms</b></div>
+  </div>
+  <div class="phases">
+    <div class="ph" id="ph1"><b>1 Init</b>VPC · IAM · CMK · Trail</div>
+    <div class="ph" id="ph2"><b>2 Encrypt</b>GenerateDataKey</div>
+    <div class="ph" id="ph3"><b>3 Persist</b>Aurora Multi-AZ + replica</div>
+    <div class="ph" id="ph4"><b>4 Audit / cost</b>Trail · CW · Budget</div>
+    <div class="ph" id="ph5"><b>5 Read</b>Decrypt if policy allows</div>
+  </div>
+  <div class="grid">
+    <div class="card"><h4>CS1 · Aurora system of record</h4><div id="aurora"><pre>empty — write a record</pre></div></div>
+    <div class="card"><h4>Client result</h4><pre id="result">Ready. Click Write.</pre></div>
+    <div class="card"><h4>CS1 · DynamoDB consent + sessions</h4><pre id="ddb">{}</pre></div>
+    <div class="card"><h4>CS2 · CloudTrail</h4><pre id="trail">[]</pre></div>
+  </div>
+  <div class="card" style="margin-top:10px">
+    <h4>What each click maps to in Figure 1</h4>
+    <table>
+      <thead><tr><th>You click</th><th>Plane</th><th>AWS service from syllabus</th></tr></thead>
+      <tbody>
+        <tr><td>Write encrypted record</td><td>Client to SP to CS1</td><td>KMS GenerateDataKey, Aurora Multi-AZ, DynamoDB</td></tr>
+        <tr><td>Authorized read</td><td>CS1 to SP to Client</td><td>KMS Decrypt + IAM role</td></tr>
+        <tr><td>Intern read</td><td>SP deny</td><td>KMS key policy / least privilege</td></tr>
+        <tr><td>Simulate SQLi</td><td>edge of CS1</td><td>AWS WAF + Shield</td></tr>
+        <tr><td>Failover Multi-AZ</td><td>CS1 data plane</td><td>Aurora standby in second AZ</td></tr>
+        <tr><td>Push spend</td><td>CS2</td><td>Budgets + Trusted Advisor + CloudWatch</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+<div class="rail">
+  <h3>Control plane</h3>
+  <div class="svc"><span>API Gateway + WAF</span><span class="tag">armed</span></div>
+  <div class="svc"><span>AWS Shield Standard</span><span class="tag">on</span></div>
+  <div class="svc"><span>Aurora writer AZ</span><span class="tag" id="sAz">ap-south-1a</span></div>
+  <div class="svc"><span>Aurora replica</span><span class="tag">ap-south-1b · read</span></div>
+  <div class="svc"><span>KMS CMK</span><span class="tag">enabled</span></div>
+  <div class="svc"><span>CloudTrail</span><span class="tag">multi-region</span></div>
+  <div class="svc"><span>Config drift</span><span class="tag">clean</span></div>
+  <h3 style="margin-top:16px">Budget this month</h3>
+  <div class="kpi"><em>Lab cap $20 · used <b id="spendLbl" style="display:inline;font-size:13px">$6.80</b></em><div class="bar"><i id="spendBar"></i></div></div>
+  <h3 style="margin-top:16px">Trusted Advisor</h3>
+  <div class="svc"><span>Open data SG</span><span class="ok">none</span></div>
+  <div class="svc"><span>Unencrypted store</span><span class="ok">none</span></div>
+  <div class="svc"><span>Idle replica</span><span class="warn" id="sIdle">watch</span></div>
+  <p class="hint">Shared Responsibility: AWS holds the KMS HSM and Shield infra. We hold the key policy, IAM roles, and WAF rules.</p>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const ALLOWED_WRITE = new Set(["clinician-readwrite"]);
+const ALLOWED_READ = new Set(["clinician-readwrite"]);
+const aurora = new Map(); const consent = {}; const trail = [];
+let cmk = null, writes = 0, decs = 0, wafs = 0, spend = 6.8, writerAZ = "ap-south-1a";
+const $ = id => document.getElementById(id);
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.style.display = "block"; setTimeout(() => t.style.display = "none", 2200); }
+function phase(n) { for (let i = 1; i <= 5; i++) $("ph"+i).classList.toggle("on", i <= n); }
+function hex(buf) { return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,"0")).join(""); }
+function log(event, role, id, extra) {
+  trail.unshift({ t: new Date().toISOString().slice(11,19), event, role, id, extra });
+  $("trail").textContent = JSON.stringify(trail.slice(0,12), null, 2);
+}
+async function getCMK() {
+  if (!cmk) cmk = await crypto.subtle.generateKey({ name:"AES-GCM", length:256 }, true, ["encrypt","decrypt"]);
+  return cmk;
+}
+async function packEDK(role) {
+  if (!ALLOWED_WRITE.has(role)) throw new Error("KMS key policy denied GenerateDataKey");
+  const dk = await crypto.subtle.generateKey({ name:"AES-GCM", length:256 }, true, ["encrypt","decrypt"]);
+  const raw = await crypto.subtle.exportKey("raw", dk);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const wrapped = await crypto.subtle.encrypt({ name:"AES-GCM", iv }, await getCMK(), raw);
+  const edk = new Uint8Array(12 + wrapped.byteLength); edk.set(iv,0); edk.set(new Uint8Array(wrapped),12);
+  return { dk, edk };
+}
+async function unwrapEDK(role, edk) {
+  if (!ALLOWED_READ.has(role)) throw new Error("KMS key policy denied Decrypt");
+  const raw = await crypto.subtle.decrypt({ name:"AES-GCM", iv: edk.slice(0,12) }, await getCMK(), edk.slice(12));
+  return crypto.subtle.importKey("raw", raw, { name:"AES-GCM" }, false, ["decrypt"]);
+}
+function kpis() {
+  $("kWrite").textContent = writes; $("kDec").textContent = decs; $("kWaf").textContent = wafs;
+  $("spendLbl").textContent = "$" + spend.toFixed(2);
+  $("spendBar").style.width = Math.min(100, (spend/20)*100) + "%";
+}
+function showAurora() {
+  const rows = [...aurora.values()];
+  if (!rows.length) { $("aurora").innerHTML = "<pre>empty — write a record</pre>"; return; }
+  const last = rows[rows.length-1];
+  const sample = $("body").value.slice(0,12);
+  const leaked = JSON.stringify(last).includes(sample);
+  $("aurora").innerHTML = "<pre>" + JSON.stringify(last,null,2) + "</pre><div class='"+(leaked?"bad":"ok")+"' style='margin-top:8px;font-size:12px'>" +
+    (leaked ? "FAIL: plaintext leaked" : "OK · plaintext absent from Aurora · EDK + ciphertext only") + "</div>";
+  $("ddb").textContent = JSON.stringify(consent, null, 2);
+}
+async function writeRecord() {
+  const role = $("role").value, patient = $("patient").value.trim(), body = $("body").value;
+  try {
+    phase(2);
+    const { dk, edk } = await packEDK(role);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name:"AES-GCM", iv }, dk, new TextEncoder().encode(body));
+    const id = "enc-" + hex(crypto.getRandomValues(new Uint8Array(3)));
+    aurora.set(id, { encounter_id:id, patient_id:patient, writer_az:writerAZ, replica:"ap-south-1b",
+      edk_hex:hex(edk).slice(0,48)+"...", ciphertext_hex:hex(ct).slice(0,48)+"...",
+      nonce_hex:hex(iv), s3_pointer:"s3://medvault-cipher/"+id+".bin", written_at:new Date().toISOString() });
+    window._edk = edk; window._ct = ct; window._iv = iv; window._last = id;
+    consent[patient] = { consent:true, session:"hot", stream:"pending-audit" };
+    writes++; spend += 0.12; kpis(); phase(3); log("PutRecord", role, id, "Aurora Multi-AZ + DynamoDB");
+    showAurora(); phase(4);
+    $("result").innerHTML = "<span class='ok'>WRITE OK</span>\n"+id+"\nstored: EDK + ciphertext\nwriter "+writerAZ+" · replica ap-south-1b";
+    toast("Record committed in Multi-AZ");
+  } catch(e) { log("PutRecord.Denied", role, "-", e.message); $("result").innerHTML = "<span class='bad'>WRITE DENIED</span>\n"+e.message; }
+}
+async function readRecord(role) {
+  const id = window._last;
+  if (!id) { $("result").textContent = "Write first."; return; }
+  try {
+    if (!consent[aurora.get(id).patient_id]) throw new Error("DynamoDB consent missing");
+    const dk = await unwrapEDK(role, window._edk);
+    const pt = await crypto.subtle.decrypt({ name:"AES-GCM", iv: window._iv }, dk, window._ct);
+    decs++; spend += 0.03; kpis(); phase(5); log("KMS.Decrypt", role, id, "authorized");
+    $("result").innerHTML = "<span class='ok'>READ OK · plaintext in browser memory only</span>\n"+new TextDecoder().decode(pt);
+    toast("KMS Decrypt allowed");
+  } catch(e) {
+    log("KMS.Decrypt.Denied", role, id, e.message);
+    $("result").innerHTML = "<span class='bad'>READ DENIED</span>\nrole "+role+"\n"+e.message;
+    toast("Key policy blocked that role");
+  }
+}
+$("btnWrite").onclick = writeRecord;
+$("btnRead").onclick = () => readRecord("clinician-readwrite");
+$("btnDeny").onclick = () => readRecord("random-intern");
+$("btnWaf").onclick = () => {
+  wafs++; spend += 0.01; kpis(); phase(4);
+  log("WAF.Block", $("role").value, "-", "SQLi pattern on API Gateway");
+  $("result").innerHTML = "<span class='bad'>WAF BLOCK</span>\nGET /records?id=1 OR 1=1\nrule AWS-AWSManagedRulesSQLiRuleSet\nShield Standard: no volumetric event";
+  toast("WAF dropped the request before compute");
+};
+$("btnFail").onclick = () => {
+  writerAZ = writerAZ === "ap-south-1a" ? "ap-south-1b" : "ap-south-1a";
+  $("sAz").textContent = writerAZ; $("kLag").textContent = "0 ms";
+  $("sIdle").textContent = "promoted"; $("sIdle").className = "ok";
+  log("Aurora.Failover", "system", "-", "standby promoted "+writerAZ);
+  $("result").innerHTML = "<span class='ok'>FAILOVER OK</span>\nwriter now "+writerAZ+"\nRPO near 0 · Multi-AZ standby took over\nread replica still serving search";
+  toast("Multi-AZ failover complete");
+};
+$("btnBudget").onclick = () => {
+  spend = Math.min(20, spend + 1.6); kpis(); phase(4);
+  const pct = Math.round(spend/20*100);
+  log("Budgets.Forecast", "billing", "-", pct+"% of $20 lab cap");
+  $("result").innerHTML = (pct>=80? "<span class='warn'>BUDGET ALERT 80%</span>" : "<span class='ok'>BUDGET OK</span>") +
+    "\nused $"+spend.toFixed(2)+" / $20\nTrusted Advisor: check idle replica before scaling";
+  toast(pct>=80 ? "Email alarm would fire at 80%" : "Spend recorded");
+};
+$("btnReset").onclick = () => {
+  aurora.clear(); Object.keys(consent).forEach(k=>delete consent[k]); trail.length=0;
+  writes=decs=wafs=0; spend=6.8; writerAZ="ap-south-1a"; window._last=null; cmk=null;
+  $("sAz").textContent = writerAZ; $("kLag").textContent = "12 ms"; $("sIdle").textContent="watch"; $("sIdle").className="warn";
+  kpis(); phase(1); showAurora(); $("ddb").textContent="{}"; $("trail").textContent="[]";
+  $("result").textContent = "Lab reset. CMK rotated in-memory.";
+};
+phase(1); kpis();
+</script>
+</body>
+</html>
